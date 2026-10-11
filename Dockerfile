@@ -41,8 +41,12 @@ WORKDIR /app
 COPY --chown=open77:open77 . .
 
 # Unpacking the archive on Windows loses the executable bit; restore it on the
-# server binary and the launcher before dropping privileges.
-RUN chmod +x ./Open77.Server ./start.sh
+# server binary and the launcher. Also own the whole tree: WORKDIR created /app
+# as root and COPY --chown does not change the owner of a directory that already
+# exists, which would prevent the unprivileged user from writing server state
+# (.open77/, server.jsonc) at runtime.
+RUN chown -R open77:open77 /app \
+    && chmod +x ./Open77.Server ./start.sh
 
 USER open77
 
