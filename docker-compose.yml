@@ -1,0 +1,61 @@
+# Convenience wrapper around the Dockerfile.
+#
+#   cp .env.example .env   # fill in OP77_LICENSE_KEY (and OP77_PUBLIC_IP)
+#   docker compose up --build          # first run: Warden onboarding on :11780
+#   docker compose logs -f             # read the one-time setup PIN
+#
+# Dokploy / PaaS: define the same variables in the application environment —
+# docker-compose.yml interpolates them exactly like a local .env file.
+# Secrets belong there, never in server.jsonc or on the command line.
+# See docs/server-configuration.md.
+services:
+  open77:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: open77-server:local
+    restart: unless-stopped
+
+    # Uses the mounted server.jsonc (read-write, so Warden edits are kept).
+    # Remove this line for a first setup run so the onboarding wizard can open
+    # on :11780; put it back once the server is provisioned.
+    command: ["--no-setup", "--config", "server.jsonc"]
+
+    environment:
+      # Interpolated from .env (or the Dokploy/PaaS environment variables).
+      # These are the only places the licence key and DB password should live.
+      OP77_LICENSE_KEY: "${OP77_LICENSE_KEY:-}"
+      OP77_DATABASE_CONNECTION: "${OP77_DATABASE_CONNECTION:-}"
+      # Advertised address used to fill the public endpoints and enable downloads.
+      # Overrides / completes server.jsonc so the file stays placeholder-free.
+      OP77_PUBLIC_IP: "${OP77_PUBLIC_IP:-}"
+      OP77_CONFIG__NETWORK__MAXIMUMPLAYERS: "32"
+      OP77_CONFIG__LOGGING__LEVEL: "info"
+
+    ports:
+      - "11778:11778/udp" # game
+      - "11779:11779/tcp" # resource downloads (game port + 1)
+      - "11780:11780/tcp" # Warden onboarding / admin panel
+      # - "11781:11781/tcp" # in-resource HTTP handler (loopback-only by default)
+      # - "11782:11782/tcp" # RCON
+
+    volumes:
+      # server.jsonc is provided at the repo root and is bind-mounted read-write
+      # so Warden edits live server-side and your settings survive a rebuild.
+      # Replace the play.example.com:11778 placeholder before going live.
+      - ./server.jsonc:/app/server.jsonc
+      # Named volumes are seeded from the image on first run, so the shipped
+      # resources and the generated identity survive a rebuild. Note that a
+      # persisted resources/ volume does NOT pick up resource changes in a newer
+      # image unless you refresh it (recreate the volume, or copy the files).
+      # - open77-resources:/app/resources
+      # - open77-state:/app/.open77
+      # acl.jsonc is created at runtime by Warden. To persist it too, extract it
+      # after the first setup and mount it back (the host file must already
+      # exist, otherwise Docker creates a directory in its place):
+      #   docker compose cp open77:/app/acl.jsonc ./acl.jsonc
+      # - ./acl.jsonc:/app/acl.jsonc
+
+# volumes:
+#   open77-resources:
+#   open77-state:

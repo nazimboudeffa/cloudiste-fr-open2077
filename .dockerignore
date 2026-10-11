@@ -1,0 +1,26 @@
+# Build-only files: never needed inside the running server image.
+Dockerfile
+docker-compose.yml
+.dockerignore
+.git
+.gitignore
+
+# Never bake operator state or secrets into the image.
+# These are created by the server at runtime (onboarding / Warden) and must be
+# mounted from the host instead.
+server.jsonc
+acl.jsonc
+.open77
+data
+
+# Local environment files hold secrets; keep them out of the image. The
+# documented template (.env.example) stays available.
+.env
+.env.*
+!.env.example
+
+# Editor / OS noise.
+*.log
+*.swp
+Thumbs.db
+.DS_Store

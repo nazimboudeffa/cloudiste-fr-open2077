@@ -1,0 +1,28 @@
+{
+  // How your server presents itself in the launcher and server list.
+  "identity": {
+    "name": "Neon District RP",
+    "visibility": "public"          // "public" to be listed; "private" to hide
+  },
+
+  // The address players connect to (hostname/public IP plus the game port they
+  // can reach — not a LAN address). The game port is 11778 here (Open77
+  // default), so resource downloads are served on 11779/TCP.
+  // TODO: replace the placeholder with your real public address.
+  "network": {
+    "port": 11778,
+    "publicEndpoint": "play.example.com:11778",
+    "maximumPlayers": 32
+  },
+
+  // The platform link. Leave enabled so the server enrols and gets listed;
+  // the url already defaults to the production master, so you rarely touch it.
+  "masterServer": {
+    "enabled": true,
+    "url": "https://master.open2077.net/",
+
+    // Prefer the OP77_LICENSE_KEY environment variable and leave this null so
+    // the file stays safe to share. Set it here only for a private deployment.
+    "licenseKey": null
+  }
+}
