@@ -1,7 +1,7 @@
 {
   // How your server presents itself in the launcher and server list.
   "identity": {
-    "name": "Neon District RP",
+    "name": "cloudiste.fr",
     "visibility": "public"          // "public" to be listed; "private" to hide
   },
 
@@ -11,7 +11,7 @@
   // TODO: replace the placeholder with your real public address.
   "network": {
     "port": 11778,
-    "publicEndpoint": "play.example.com:11778",
+    "publicEndpoint": "play.cloudiste:11778",
     "maximumPlayers": 32
   },
 
